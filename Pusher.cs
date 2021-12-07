@@ -44,6 +44,7 @@ namespace ManticorePusher
                     {
                         await using var connection = new MySqlConnection(_connectionString);
                         connection.Open();
+                        DropTable(connection, num);
                         CreateDb(connection, num);
 
                         long id = 1_000_000_000;
@@ -51,7 +52,14 @@ namespace ManticorePusher
                         var batchCommand = CreateBatchCommand(connection, num, _batchSize);
                         for (var j = 0; j < _iteration; j++)
                         {
-                            await InsertBatch(batchCommand, ref id, _batchSize);
+                            try
+                            {
+                                await InsertBatch(batchCommand, ref id, _batchSize);
+                            }
+                            catch (MySqlException ex)
+                            {
+                                Console.WriteLine(ex);
+                            }        
                         }
                     }
                     catch (Exception ex)
@@ -62,6 +70,13 @@ namespace ManticorePusher
             }
 
             await Task.WhenAll(workers);
+        }
+
+        private void DropTable(MySqlConnection connection, int num)
+        {
+            var cmd = connection.CreateCommand();
+            cmd.CommandText = $"DROP TABLE IF EXISTS table_{num};";
+            cmd.ExecuteNonQuery();
         }
 
         private Task InsertBatch(MySqlCommand cmd, ref long id, int batchSize)
