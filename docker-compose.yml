@@ -1,0 +1,17 @@
+version: '3'
+services:
+  manticore:
+    image: manticoresearch/manticore:4.0.2
+    networks:
+      - pusher_net
+    ports:
+      - "9306:9306"
+  pusher:
+    image: manticore-pusher
+    links:
+      - manticore
+    networks:
+      - pusher_net
+networks:
+  pusher_net:
+    driver: bridge
