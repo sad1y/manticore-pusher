@@ -14,6 +14,7 @@ namespace ManticorePusher
         private const int UintParameters = 6;
         private const int FloatParameters = 1;
 
+        private readonly string _connectionString;
         private readonly int _workerCount;
         private readonly int _iteration;
         private readonly int _batchSize;
@@ -21,8 +22,9 @@ namespace ManticorePusher
 
         private readonly Random _rng = new();
 
-        public Pusher(int workerCount, int iteration, int batchSize)
+        public Pusher(string connectionString, int workerCount, int iteration, int batchSize)
         {
+            _connectionString = connectionString;
             _workerCount = workerCount;
             _iteration = iteration;
             _batchSize = batchSize;
@@ -40,7 +42,7 @@ namespace ManticorePusher
                 {
                     try
                     {
-                        await using var connection = new MySqlConnection("Server=127.0.0.1;Port=9306;SslMode=None;");
+                        await using var connection = new MySqlConnection(_connectionString);
                         connection.Open();
                         CreateDb(connection, num);
 

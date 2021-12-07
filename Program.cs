@@ -11,14 +11,17 @@ static class Program
 {
     public class Options
     {
-        [Option('w', "workerCount", Required = true, HelpText = "how many table to create")]
+        [Option('w', "worker-count", Required = true, HelpText = "how many table to create")]
         public int WorkerCount { get; set; }
 
-        [Option('i', "iterationCount", Required = true, HelpText = "how many batch insert to perform")]
+        [Option('i', "iteration-count", Required = true, HelpText = "how many batch insert to perform")]
         public int IterationCount { get; set; }
 
-        [Option('b', "batchSize", Required = true, HelpText = "how many insert statements command will contains")]
+        [Option('b', "batch-size", Required = true, HelpText = "how many insert statements command will contains")]
         public int BatchSize { get; set; }
+
+        [Option('c', "connection-string", Required = false, Default = "Server=127.0.0.1;Port=9306;SslMode=None;", HelpText = "connection string to manticore")]
+        public string? ConnectionString { get; set; }
     }
 
     public static async Task Main(string[] args)
@@ -28,7 +31,7 @@ static class Program
 
     private static async Task Run(Options options)
     {
-        var pusher = new Pusher(options.WorkerCount, options.IterationCount, options.BatchSize);
+        var pusher = new Pusher(options.ConnectionString!, options.WorkerCount, options.IterationCount, options.BatchSize);
         await pusher.Run();
         Console.WriteLine("done!");
     }
